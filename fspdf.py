@@ -16,6 +16,8 @@ class Page():
         self.rel_width = 1
         self.signatures = []
         self.canvas = canvas
+        self.xoffset = (self.canvas.winfo_width() - self.width) / 2
+        self.yoffset = (self.canvas.winfo_height() - self.height) / 2
         self.tkimg = ImageTk.PhotoImage(image=self.img)
         self.box_resize(self.canvas.winfo_width(),
                         self.canvas.winfo_height())
@@ -26,6 +28,8 @@ class Page():
         scale = sw if sw < sh else sh
         self.width = int(self.width*scale)
         self.height = int(self.height*scale)
+        self.xoffset = (width - self.width) / 2
+        self.yoffset = (height - self.height) / 2
         self.img = Image.open(self.img_file)
         self.img = self.img.resize((self.width, self.height),
                                    Image.ANTIALIAS)
@@ -36,15 +40,13 @@ class Page():
 
     def canvas_draw(self):
         self.canvas.delete("all")
-        xoffset = (self.canvas.winfo_width() - self.width) / 2
-        yoffset = (self.canvas.winfo_height() - self.height) / 2
-        self.canvas.create_image(xoffset, yoffset,
+        self.canvas.create_image(self.xoffset, self.yoffset,
                                  anchor=tk.NW, image=self.tkimg)
         for s in self.signatures:
-            s.d
+            s.canvas_draw()
         self.canvas.update_idletasks()
-        print("Page redrawn at {}/{} ({}x{})".format(xoffset, yoffset,
-              self.width, self.height))
+        print("Page redrawn at {}/{} ({}x{})".format(self.xoffset,
+              self.yoffset, self.width, self.height))
 
 
 class Signature():
@@ -57,8 +59,16 @@ class Signature():
         self.rel_width = self.width / page.width
         self.tkimg = ImageTk.PhotoImage(image=self.img)
         self.oid = None
+        self.x = None
+        self.y = None
+        self.rel_x = None
+        self.rel_y = None
         if event is not None:
-            self.create(event)
+            self.x = event.x - page.xoffset
+            self.y = event.y - page.yoffset
+            self.rel_x = self.x / page.width
+            self.rel_y = self.y / page.height
+            self.canvas_draw()
 
     def resize(self, width):
         if width > self.page.img.width:
@@ -67,20 +77,27 @@ class Signature():
             width = 50
         if self.img.width == width:
             return
+        self.width = width
+        self.rel_width = width / self.page.width
         nimg = Image.open(self.img_file)
         scale = width / nimg.width
         self.img = nimg.resize((int(width), int(nimg.height * scale)),
                                Image.NEAREST)
         self.tkimg = ImageTk.PhotoImage(image=self.img)
 
-    def create(self, event):
-        self.oid = self.page.canvas.create_image(event.x, event.y,
+    def canvas_draw(self):
+        if self.oid is not None:
+            self.page.canvas.delete(self.oid)
+        self.x = self.rel_x * self.page.width + self.page.xoffset
+        self.y = self.rel_y * self.page.height + self.page.yoffset
+        self.resize(self.page.width * self.rel_width)
+        self.oid = self.page.canvas.create_image(self.x, self.y,
                                                  anchor=tk.CENTER,
                                                  image=self.tkimg)
         self.page.canvas.tag_bind(self.oid, "<Button-4>", self.smaller)
         self.page.canvas.tag_bind(self.oid, "<Button-5>", self.larger)
-        print("Creating signature at {}/{}, oid={}".format(event.x,
-                                                           event.y, self.oid))
+        print("Drawing signature at {}/{}, oid={}".format(self.x,
+                                                          self.y, self.oid))
         self.page.canvas.update_idletasks()
 
     def smaller(self, event):
