@@ -63,6 +63,9 @@ class Signature():
         self.y = None
         self.rel_x = None
         self.rel_y = None
+        # this data is used to keep track of an
+        # item being dragged
+        self._drag_data = {"x": 0, "y": 0}
         if event is not None:
             self.x = event.x - page.xoffset
             self.y = event.y - page.yoffset
@@ -96,6 +99,9 @@ class Signature():
                                                  image=self.tkimg)
         self.page.canvas.tag_bind(self.oid, "<Button-4>", self.smaller)
         self.page.canvas.tag_bind(self.oid, "<Button-5>", self.larger)
+        self.page.canvas.tag_bind(self.oid, "<ButtonPress-1>", self.drag_start)
+        self.page.canvas.tag_bind(self.oid, "<ButtonRelease-1>", self.drag_end)
+        self.page.canvas.tag_bind(self.oid, "<B1-Motion>", self.drag)
         print("Drawing signature at {}/{}, oid={}".format(self.x,
                                                           self.y, self.oid))
         self.page.canvas.update_idletasks()
@@ -109,6 +115,34 @@ class Signature():
         self.resize(self.img.width * 1.2)
         canvas.itemconfig(tk.CURRENT, image=self.tkimg)
         canvas.update_idletasks()
+
+    def drag_start(self, event):
+        '''Begining drag of an object'''
+        event.widget.tag_click = True
+        # record the item and its location
+        self._drag_data["x"] = event.x
+        self._drag_data["y"] = event.y
+
+    def drag_end(self, event):
+        '''End drag of an object'''
+        self.x = self._drag_data["x"] - page.xoffset
+        self.y = self._drag_data["y"] - page.yoffset
+        self.rel_x = self.x / self.page.width
+        self.rel_y = self.y / self.page.height
+        # reset the drag information
+        self._drag_data["x"] = 0
+        self._drag_data["y"] = 0
+
+    def drag(self, event):
+        '''Handle dragging of an object'''
+        # compute how much the mouse has moved
+        delta_x = event.x - self._drag_data["x"]
+        delta_y = event.y - self._drag_data["y"]
+        # move the object the appropriate amount
+        self.page.canvas.move(tk.CURRENT, delta_x, delta_y)
+        # record the new position
+        self._drag_data["x"] = event.x
+        self._drag_data["y"] = event.y
 
 
 pdf_file = sys.argv[1]
@@ -146,6 +180,13 @@ def resize(event):
     page.canvas_draw()
 
 
+def create_signature(event):
+    if event.widget.tag_click:
+        event.widget.tag_click = False
+        return
+    Signature(page, sig_file, event)
+
+
 root = tk.Tk()
 
 img = Image.open(png_files[0])
@@ -162,12 +203,12 @@ psButton = tk.Button(right, text="Create Postscript",
 psButton.pack()
 
 canvas = tk.Canvas(left)
+canvas.tag_click = False
 canvas.pack(fill=tk.BOTH, expand=tk.YES)
 canvas.update()
 page = Page(png_files[0], canvas)
 page.canvas_draw()
 
 canvas.bind("<Configure>", resize)
-canvas.bind("<Button-1>", lambda event: Signature(page,
-                                                  sig_file, event))
+canvas.bind("<Button-1>", create_signature)
 tk.mainloop()
