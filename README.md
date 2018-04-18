@@ -58,4 +58,6 @@ Create a transparent png with your signature.
 python3 fspdf.py PDFFILE SIGNATURE.PNG
 ```
 
-
+- PDF automatically adjust to window size.
+- Left click to add a signature.
+- Mouse wheel to adjust size of a signature.
