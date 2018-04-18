@@ -205,11 +205,15 @@ def resize(event):
     page.canvas_draw()
 
 
-def create_signature(event):
+def create_element(event):
     if event.widget.tag_click:
         event.widget.tag_click = False
         return
-    Signature(page, sig_file, event)
+    print("Left click, mode is \"{}\".".format(mode.get()))
+    if mode.get() == "sign":
+        Signature(page, sig_file, event)
+    elif mode.get() == "fill":
+        pass
 
 
 root = tk.Tk()
@@ -223,9 +227,22 @@ right = tk.Frame(root, bg="red")
 left.pack(side=tk.LEFT, fill=tk.BOTH, expand=tk.YES)
 right.pack(side=tk.RIGHT, fill=tk.Y)
 
-psButton = tk.Button(right, text="Save signed PDF",
-                     command=save_pdf)
-psButton.pack()
+mode = tk.StringVar()
+mode.set("off")
+
+off_button = tk.Radiobutton(right, text="Off", variable=mode, value="off",
+                            indicatoron=0)
+sign_button = tk.Radiobutton(right, text="Sign", variable=mode, value="sign",
+                             indicatoron=0)
+fill_button = tk.Radiobutton(right, text="Fill", variable=mode, value="fill",
+                             indicatoron=0)
+off_button.pack(fill=tk.X)
+sign_button.pack(fill=tk.X)
+fill_button.pack(fill=tk.X)
+
+ps_button = tk.Button(right, text="Save signed PDF",
+                      command=save_pdf)
+ps_button.pack()
 
 canvas = tk.Canvas(left)
 canvas.tag_click = False
@@ -235,5 +252,5 @@ page = Page(png_files[0], canvas)
 page.canvas_draw()
 
 canvas.bind("<Configure>", resize)
-canvas.bind("<Button-1>", create_signature)
+canvas.bind("<Button-1>", create_element)
 tk.mainloop()
