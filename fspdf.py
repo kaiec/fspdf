@@ -95,6 +95,8 @@ class Signature():
 
 
 pdf_file = sys.argv[1]
+sig_file = sys.argv[2]
+
 # Create temporary directory
 tempdir = tempfile.TemporaryDirectory(prefix="pdfsign-")
 tmp_pdf = os.path.join(tempdir.name, "input.pdf")
@@ -150,5 +152,5 @@ page.canvas_draw()
 
 canvas.bind("<Configure>", resize)
 canvas.bind("<Button-1>", lambda event: Signature(page,
-                                                  "unterschrift.png", event))
+                                                  sig_file, event))
 tk.mainloop()
