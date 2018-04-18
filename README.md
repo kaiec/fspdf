@@ -16,7 +16,7 @@ The idea is that it will not do anything besides this one task:
 
 **Fill in arbitrary text and a signature.**
 
-Currently this is a very early prototype, merely a proof-of-concept. The plan is to create an image from all overlay elements (texts and signatures) and turn it into an PDF. This will then be stamped on the original PDF using pdftk's multi-stamp feature. If you are interested in joining the project, get in contact. 
+Currently this is a very early prototype, merely a proof-of-concept. fspdf creates an image from all overlay elements (texts and signatures) and turns it into an PDF. This is then stamped on the original PDF using pdftk's multi-stamp feature. If you are interested in joining the project, get in contact. 
 
 Otherwise just wait until this thing works. The good thing is that I will be motivated to continue whenever a sucking PDF file to be filled and signed hits my inbox. I can assure you, this will happen :-)
 
@@ -55,10 +55,20 @@ pip install Pillow
 Create a transparent png with your signature.
 
 ```
-python3 fspdf.py PDFFILE SIGNATURE.PNG
+python3 fspdf.py PDFFILE.PDF SIGNATURE.PNG
 ```
 
-- PDF automatically adjust to window size.
+- PDF automatically adjusts to window size.
 - Left click to add a signature.
 - Mouse wheel to adjust size of a signature.
 - Drag and drop to move signature
+- hit save button to export to PDFFILE-signed.PDF
+
+## Todo
+- allow adding of text to the PDF
+- multiple pages
+- scrollable canvas
+- config file to configure the signature
+- date stamps with configurable date format
+- multiline text with adjustable line height (to fill in tables)
+- ...

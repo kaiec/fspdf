@@ -106,6 +106,16 @@ class Signature():
                                                           self.y, self.oid))
         self.page.canvas.update_idletasks()
 
+    def image_draw(self, image):
+        x = int(self.rel_x * image.width)
+        y = int(self.rel_y * image.height)
+        width = int(self.rel_width * image.width)
+        nimg = Image.open(self.img_file)
+        scale = width / nimg.width
+        height = int(nimg.height * scale)
+        nimg = nimg.resize((width, height), Image.ANTIALIAS)
+        image.paste(nimg, (x - width // 2, y - height // 2))
+
     def smaller(self, event):
         self.resize(self.img.width * 0.9)
         canvas.itemconfig(tk.CURRENT, image=self.tkimg)
@@ -168,8 +178,23 @@ png_files = sorted([os.path.join(tempdir.name, f)
 print("Generated page images: {}".format(", ".join(png_files)))
 
 
-def create_postscript():
-    canvas.postscript(file="test1.ps", colormode="color")
+def save_pdf():
+    orig = Image.open(page.img_file)
+    stamp = Image.new("RGBA", (orig.width, orig.height), (0, 0, 0, 0))
+    empty = Image.new("RGBA", (orig.width, orig.height), (0, 0, 0, 0))
+    for s in page.signatures:
+        s.image_draw(stamp)
+    stamp_file = "{}-stamp.png".format(page.img_file[:-4])
+    empty_file = "{}-empty.png".format(page.img_file[:-4])
+    stamp_pdf = "{}-stamp.pdf".format(tmp_pdf[:-4])
+    stamp.save(stamp_file)
+    empty.save(empty_file)
+    # Convert it to png images
+    subprocess.run(["convert", stamp_file, empty_file, stamp_pdf],
+                   stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
+    subprocess.run(["pdftk", tmp_pdf, "multistamp", stamp_pdf, "output",
+                   "{}-signed.pdf".format(pdf_file[:-4])],
+                   stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
 
 
 def resize(event):
@@ -198,8 +223,8 @@ right = tk.Frame(root, bg="red")
 left.pack(side=tk.LEFT, fill=tk.BOTH, expand=tk.YES)
 right.pack(side=tk.RIGHT, fill=tk.Y)
 
-psButton = tk.Button(right, text="Create Postscript",
-                     command=create_postscript)
+psButton = tk.Button(right, text="Save signed PDF",
+                     command=save_pdf)
 psButton.pack()
 
 canvas = tk.Canvas(left)
