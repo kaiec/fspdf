@@ -73,6 +73,10 @@ class Signature():
             self.rel_y = self.y / page.height
             self.canvas_draw()
 
+    def delete(self, event):
+        self.page.canvas.delete(tk.CURRENT)
+        self.page.signatures.remove(self)
+
     def resize(self, width):
         if width > self.page.img.width:
             width = self.page.img.width
@@ -102,6 +106,7 @@ class Signature():
         self.page.canvas.tag_bind(self.oid, "<ButtonPress-1>", self.drag_start)
         self.page.canvas.tag_bind(self.oid, "<ButtonRelease-1>", self.drag_end)
         self.page.canvas.tag_bind(self.oid, "<B1-Motion>", self.drag)
+        self.page.canvas.tag_bind(self.oid, "<Button-3>", self.delete)
         print("Drawing signature at {}/{}, oid={}".format(self.x,
                                                           self.y, self.oid))
         self.page.canvas.update_idletasks()
@@ -239,6 +244,9 @@ fill_button = tk.Radiobutton(right, text="Fill", variable=mode, value="fill",
 off_button.pack(fill=tk.X)
 sign_button.pack(fill=tk.X)
 fill_button.pack(fill=tk.X)
+
+text = tk.Text(right, height=10, width=30)
+text.pack()
 
 ps_button = tk.Button(right, text="Save signed PDF",
                       command=save_pdf)
