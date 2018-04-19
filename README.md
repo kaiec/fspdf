@@ -59,13 +59,12 @@ python3 fspdf.py PDFFILE.PDF SIGNATURE.PNG
 ```
 
 - PDF automatically adjusts to window size.
-- Left click to add a signature.
-- Mouse wheel to adjust size of a signature.
-- Drag and drop to move signature
+- Left click to add a text (fill mode) or signature.
+- Mouse wheel to adjust size of an element.
+- Drag and drop to move element
 - hit save button to export to PDFFILE-signed.PDF
 
 ## Todo
-- allow adding of text to the PDF
 - multiple pages
 - scrollable canvas
 - config file to configure the signature

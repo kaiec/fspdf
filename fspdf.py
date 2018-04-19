@@ -4,7 +4,7 @@ import os
 import tempfile
 import shutil
 import subprocess
-from PIL import ImageTk, Image
+from PIL import ImageTk, Image, ImageFont, ImageDraw
 
 
 class Page():
@@ -14,7 +14,7 @@ class Page():
         self.width = img.width
         self.height = img.height
         self.rel_width = 1
-        self.signatures = []
+        self.annotations = []
         self.canvas = canvas
         self.xoffset = (self.canvas.winfo_width() - self.width) / 2
         self.yoffset = (self.canvas.winfo_height() - self.height) / 2
@@ -42,19 +42,19 @@ class Page():
         self.canvas.delete("all")
         self.canvas.create_image(self.xoffset, self.yoffset,
                                  anchor=tk.NW, image=self.tkimg)
-        for s in self.signatures:
+        for s in self.annotations:
             s.canvas_draw()
         self.canvas.update_idletasks()
         print("Page redrawn at {}/{} ({}x{})".format(self.xoffset,
               self.yoffset, self.width, self.height))
 
 
-class Signature():
-    def __init__(self, page, img_file, event=None):
+class Annotation():
+    def __init__(self, page, img, event=None):
         self.page = page
-        page.signatures.append(self)
-        self.img_file = img_file
-        self.img = Image.open(img_file)
+        page.annotations.append(self)
+        self.img = img
+        self.img_orig = img
         self.width = img.width
         self.rel_width = self.width / page.width
         self.tkimg = ImageTk.PhotoImage(image=self.img)
@@ -75,7 +75,7 @@ class Signature():
 
     def delete(self, event):
         self.page.canvas.delete(tk.CURRENT)
-        self.page.signatures.remove(self)
+        self.page.annotations.remove(self)
 
     def resize(self, width):
         if width > self.page.img.width:
@@ -86,7 +86,7 @@ class Signature():
             return
         self.width = width
         self.rel_width = width / self.page.width
-        nimg = Image.open(self.img_file)
+        nimg = self.img_orig
         scale = width / nimg.width
         self.img = nimg.resize((int(width), int(nimg.height * scale)),
                                Image.NEAREST)
@@ -107,15 +107,15 @@ class Signature():
         self.page.canvas.tag_bind(self.oid, "<ButtonRelease-1>", self.drag_end)
         self.page.canvas.tag_bind(self.oid, "<B1-Motion>", self.drag)
         self.page.canvas.tag_bind(self.oid, "<Button-3>", self.delete)
-        print("Drawing signature at {}/{}, oid={}".format(self.x,
-                                                          self.y, self.oid))
+        print("Drawing annotation at {}/{}, oid={}".format(self.x,
+                                                           self.y, self.oid))
         self.page.canvas.update_idletasks()
 
     def image_draw(self, image):
         x = int(self.rel_x * image.width)
         y = int(self.rel_y * image.height)
         width = int(self.rel_width * image.width)
-        nimg = Image.open(self.img_file)
+        nimg = self.img_orig
         scale = width / nimg.width
         height = int(nimg.height * scale)
         nimg = nimg.resize((width, height), Image.ANTIALIAS)
@@ -187,7 +187,7 @@ def save_pdf():
     orig = Image.open(page.img_file)
     stamp = Image.new("RGBA", (orig.width, orig.height), (0, 0, 0, 0))
     empty = Image.new("RGBA", (orig.width, orig.height), (0, 0, 0, 0))
-    for s in page.signatures:
+    for s in page.annotations:
         s.image_draw(stamp)
     stamp_file = "{}-stamp.png".format(page.img_file[:-4])
     empty_file = "{}-empty.png".format(page.img_file[:-4])
@@ -216,9 +216,19 @@ def create_element(event):
         return
     print("Left click, mode is \"{}\".".format(mode.get()))
     if mode.get() == "sign":
-        Signature(page, sig_file, event)
+        img = Image.open(sig_file)
+        Annotation(page, img, event)
     elif mode.get() == "fill":
-        pass
+        value = text.get("1.0", "end-1c")
+        fnt = ImageFont.truetype('Pillow/Tests/fonts/DejaVuSans.ttf', 72)
+        txt = Image.new('RGBA', (1000, 1000), (0, 0, 0, 0))
+        d = ImageDraw.Draw(txt)
+        size = d.textsize(value, font=fnt)
+        txt = Image.new('RGBA', size, (0, 0, 0, 0))
+        d = ImageDraw.Draw(txt)
+        print("Size of text: {}".format(size))
+        d.text((0, 0), value, font=fnt, fill=(0, 0, 0, 255))
+        Annotation(page, txt, event)
 
 
 root = tk.Tk()
