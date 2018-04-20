@@ -11,8 +11,8 @@ class Page():
     def __init__(self, img_file, canvas):
         self.img_file = img_file
         self.img = Image.open(img_file)
-        self.width = img.width
-        self.height = img.height
+        self.width = self.img.width
+        self.height = self.img.height
         self.rel_width = 1
         self.annotations = []
         self.canvas = canvas
@@ -182,20 +182,27 @@ png_files = sorted([os.path.join(tempdir.name, f)
                    for f in os.listdir(tempdir.name) if f[-4:] == ".png"])
 print("Generated page images: {}".format(", ".join(png_files)))
 
+pages = []
+
 
 def save_pdf():
     orig = Image.open(page.img_file)
-    stamp = Image.new("RGBA", (orig.width, orig.height), (0, 0, 0, 0))
+    stamp_files = []
     empty = Image.new("RGBA", (orig.width, orig.height), (0, 0, 0, 0))
-    for s in page.annotations:
-        s.image_draw(stamp)
-    stamp_file = "{}-stamp.png".format(page.img_file[:-4])
+
+    for p in pages:
+        stamp = Image.new("RGBA", (orig.width, orig.height), (0, 0, 0, 0))
+        for s in p.annotations:
+            s.image_draw(stamp)
+        stamp_file = "{}-stamp.png".format(p.img_file[:-4])
+        stamp.save(stamp_file)
+        stamp_files.append(stamp_file)
+
     empty_file = "{}-empty.png".format(page.img_file[:-4])
-    stamp_pdf = "{}-stamp.pdf".format(tmp_pdf[:-4])
-    stamp.save(stamp_file)
     empty.save(empty_file)
+    stamp_pdf = "{}-stamp.pdf".format(tmp_pdf[:-4])
     # Convert it to png images
-    subprocess.run(["convert", stamp_file, empty_file, stamp_pdf],
+    subprocess.run(["convert", *stamp_files, empty_file, stamp_pdf],
                    stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
     subprocess.run(["pdftk", tmp_pdf, "multistamp", stamp_pdf, "output",
                    "{}-signed.pdf".format(pdf_file[:-4])],
@@ -231,6 +238,22 @@ def create_element(event):
         Annotation(page, txt, event)
 
 
+def prev_page():
+    global page
+    cur = pages.index(page)
+    if cur > 0:
+        page = pages[cur - 1]
+        page.canvas_draw()
+
+
+def next_page():
+    global page
+    cur = pages.index(page)
+    if cur < len(pages) - 1:
+        page = pages[cur + 1]
+        page.canvas_draw()
+
+
 root = tk.Tk()
 
 img = Image.open(png_files[0])
@@ -258,6 +281,14 @@ fill_button.pack(fill=tk.X)
 text = tk.Text(right, height=10, width=30)
 text.pack()
 
+prev_button = tk.Button(right, text="Previous page",
+                        command=prev_page)
+prev_button.pack()
+
+next_button = tk.Button(right, text="Next page",
+                        command=next_page)
+next_button.pack()
+
 ps_button = tk.Button(right, text="Save signed PDF",
                       command=save_pdf)
 ps_button.pack()
@@ -266,7 +297,10 @@ canvas = tk.Canvas(left)
 canvas.tag_click = False
 canvas.pack(fill=tk.BOTH, expand=tk.YES)
 canvas.update()
-page = Page(png_files[0], canvas)
+for img in png_files:
+    p = Page(img, canvas)
+    pages.append(p)
+page = pages[0]
 page.canvas_draw()
 
 canvas.bind("<Configure>", resize)

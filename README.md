@@ -47,7 +47,7 @@ Python packages:
 - Pillow or PIL
 
 ```
-pip install Pillow
+pip3 install Pillow
 ```
 
 ## Run
@@ -64,8 +64,8 @@ python3 fspdf.py PDFFILE.PDF SIGNATURE.PNG
 - Drag and drop to move element
 - hit save button to export to PDFFILE-signed.PDF
 
-## Todo
-- multiple pages
+## Todo / issues
+- annotations are not placed precisely
 - scrollable canvas
 - config file to configure the signature
 - date stamps with configurable date format
