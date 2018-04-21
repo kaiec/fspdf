@@ -67,10 +67,10 @@ class Annotation():
         # item being dragged
         self._drag_data = {"x": 0, "y": 0}
         if event is not None:
-            self.x = event.x - page.xoffset
-            self.y = event.y - page.yoffset
-            self.rel_x = self.x / page.width
-            self.rel_y = self.y / page.height
+            self.x = event.x
+            self.y = event.y
+            self.rel_x = (self.x - page.xoffset) / page.width
+            self.rel_y = (self.y - page.yoffset) / page.height
             self.canvas_draw()
 
     def delete(self, event):
@@ -107,8 +107,11 @@ class Annotation():
         self.page.canvas.tag_bind(self.oid, "<ButtonRelease-1>", self.drag_end)
         self.page.canvas.tag_bind(self.oid, "<B1-Motion>", self.drag)
         self.page.canvas.tag_bind(self.oid, "<Button-3>", self.delete)
-        print("Drawing annotation at {}/{}, oid={}".format(self.x,
-                                                           self.y, self.oid))
+        print("Drawing annotation at {}/{}, oid={}, width: {}"
+              .format(self.x,
+                      self.y,
+                      self.oid,
+                      self.width))
         self.page.canvas.update_idletasks()
 
     def image_draw(self, image):
@@ -137,16 +140,19 @@ class Annotation():
         # record the item and its location
         self._drag_data["x"] = event.x
         self._drag_data["y"] = event.y
+        print("Start dragging at {}x{}".format(event.x, event.y))
+        print("Current pos: {}x{}".format(self.x, self.y))
 
     def drag_end(self, event):
         '''End drag of an object'''
-        self.x = self._drag_data["x"] - page.xoffset
-        self.y = self._drag_data["y"] - page.yoffset
-        self.rel_x = self.x / self.page.width
-        self.rel_y = self.y / self.page.height
+        self.rel_x = (self.x - page.xoffset) / self.page.width
+        self.rel_y = (self.y - page.yoffset) / self.page.height
         # reset the drag information
         self._drag_data["x"] = 0
         self._drag_data["y"] = 0
+        print("End dragging at {}x{}".format(event.x, event.y))
+        print("Current pos: {}x{}".format(self.x, self.y))
+        self.canvas_draw()
 
     def drag(self, event):
         '''Handle dragging of an object'''
@@ -155,6 +161,8 @@ class Annotation():
         delta_y = event.y - self._drag_data["y"]
         # move the object the appropriate amount
         self.page.canvas.move(tk.CURRENT, delta_x, delta_y)
+        self.x = self.x + delta_x
+        self.y = self.y + delta_y
         # record the new position
         self._drag_data["x"] = event.x
         self._drag_data["y"] = event.y

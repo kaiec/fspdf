@@ -65,7 +65,6 @@ python3 fspdf.py PDFFILE.PDF SIGNATURE.PNG
 - hit save button to export to PDFFILE-signed.PDF
 
 ## Todo / issues
-- annotations are not placed precisely
 - scrollable canvas
 - config file to configure the signature
 - date stamps with configurable date format
