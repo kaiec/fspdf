@@ -1,4 +1,7 @@
-# fspdf
+# fspdf 
+
+[![Build Status](https://travis-ci.org/kaiec/fspdf.svg?branch=master)](https://travis-ci.org/kaiec/fspdf)
+
 Fill and sign any PDF.
 
 ## Idea and current state
