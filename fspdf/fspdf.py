@@ -303,11 +303,17 @@ class Fspdf:
             img = Image.open(self.sig_file)
             Annotation(self.page, img, event)
         elif self.mode.get() == "fill":
-            value = self.text.get("1.0", "end-1c")
+            value = self.text.get("1.0", "end-1c").strip()
+            if value == "":
+                print("No text, returning...")
+                return
             fnt = ImageFont.truetype('Pillow/Tests/fonts/DejaVuSans.ttf', 72)
             txt = Image.new('RGBA', (1000, 1000), (0, 0, 0, 0))
             d = ImageDraw.Draw(txt)
             size = d.textsize(value, font=fnt)
+            if size[0] == 0 or size[1] == 0:
+                print("Fill image is empty, returning")
+                return
             txt = Image.new('RGBA', size, (0, 0, 0, 0))
             d = ImageDraw.Draw(txt)
             print("Size of text: {}".format(size))
