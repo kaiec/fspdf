@@ -1,6 +1,16 @@
+# -*- coding: utf-8 -*-
+
+
+"""fspdf.fspdf: Fill and sign PDFs."""
+
+
+__version__ = "0.1.0"
+
+
 import tkinter as tk
 import sys
 import os
+import configparser
 import tempfile
 import shutil
 import subprocess
@@ -317,4 +327,14 @@ class Fspdf:
             self.page.canvas_draw()
 
 
-Fspdf()
+def main():
+    print("Executing fspds version %s." % __version__)
+    config = configparser.ConfigParser()
+    for loc in (os.curdir, os.path.expanduser("~"),
+                "/etc/fspdf"):
+        try:
+            with open(os.path.join(loc, "fspdf.conf")) as source:
+                config.read(source)
+        except IOError:
+            pass
+    Fspdf()

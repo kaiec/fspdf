@@ -4,7 +4,8 @@
 
 Fill and sign any PDF.
 
-## Idea and current state
+## Description
+
 Adobe Reader had a great feature where you can simply fill in text
 into a PDF (not only in forms but simply by putting it over the PDF)
 and then sign it (not cryptographically, but by adding an image with 
