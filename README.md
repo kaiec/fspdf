@@ -30,7 +30,7 @@ Otherwise just wait until this thing works. The good thing is that I will be mot
 ### Latest release:
 
 ```
-pip install fspdf
+pip3 install fspdf
 ```
 
 ### Dependencies: 
