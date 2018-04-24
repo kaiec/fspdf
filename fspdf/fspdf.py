@@ -8,8 +8,8 @@ __version__ = "0.1.0"
 
 
 import tkinter as tk
-import sys
 import os
+import argparse
 import configparser
 import tempfile
 import shutil
@@ -179,9 +179,9 @@ class Annotation():
 
 
 class Fspdf:
-    def __init__(self):
-        self.pdf_file = sys.argv[1]
-        self.sig_file = sys.argv[2]
+    def __init__(self, pdf_file, sig_file):
+        self.pdf_file = pdf_file
+        self.sig_file = sig_file
 
         # Create temporary directory
         tempdir = tempfile.TemporaryDirectory(prefix="pdfsign-")
@@ -334,7 +334,6 @@ class Fspdf:
 
 
 def main():
-    print("Executing fspds version %s." % __version__)
     config = configparser.ConfigParser()
     for loc in (os.curdir, os.path.expanduser("~"),
                 "/etc/fspdf"):
@@ -343,4 +342,11 @@ def main():
                 config.read(source)
         except IOError:
             pass
-    Fspdf()
+    parser = argparse.ArgumentParser(description="Fill and sign any PDF.")
+    parser.add_argument('pdf_file', metavar='PDF_FILE', type=str,
+                        help='The PDF file to be filled and signed')
+    parser.add_argument('sig_file', metavar='SIGNATURE_FILE', type=str,
+                        help='A transparent png image wih yo signature')
+    args = parser.parse_args()
+    print("Executing fspds version %s." % __version__)
+    Fspdf(args.pdf_file, args.sig_file)
