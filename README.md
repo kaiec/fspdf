@@ -27,13 +27,16 @@ Otherwise just wait until this thing works. The good thing is that I will be mot
 
 ## Installation
 
-### Get the code
+### Latest release:
 
 ```
-git clone https://github.com/kaiec/fspdf.git
+pip install fspdf
 ```
 
 ### Dependencies: 
+
+fspdf is basically a wrapper around convert and pdftk. 
+Addtionally, you need python with tk support.
 
 Linux packages:
 
@@ -47,19 +50,39 @@ For Ubuntu:
 sudo apt install pdftk imagemagick python3-tk
 ```
 
-Python packages:
-- Pillow or PIL
+### Get the code
+
+If you want to use the latest development version:
+
+```
+git clone https://github.com/kaiec/fspdf.git
+```
+
+You can either install it using
+
+```
+python3 setup.py install
+```
+
+Or you run it directly using
+
+```
+./fspdf-runner.py PDFFILE.PDF SIGNATURE.PNG
+```
+
+Make sure you have Pillow installed in this case:
 
 ```
 pip3 install Pillow
 ```
+
 
 ## Run
 
 Create a transparent png with your signature.
 
 ```
-python3 fspdf.py PDFFILE.PDF SIGNATURE.PNG
+fspdf PDFFILE.PDF SIGNATURE.PNG
 ```
 
 - PDF automatically adjusts to window size.
