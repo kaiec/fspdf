@@ -1,0 +1,6 @@
+#!/bin/bash
+pdftk $1 output $1-uncompressed.pdf uncompress
+LANG=C sed -n '/^\/Annots/!p' $1-uncompressed.pdf > $1-stripped.pdf
+pdftk $1-stripped.pdf output $1 compress
+rm $1-uncompressed.pdf
+rm $1-stripped.pdf

@@ -184,7 +184,7 @@ class Annotation():
         scale = width / nimg.width
         height = int(nimg.height * scale)
         nimg = nimg.resize((width, height), Image.ANTIALIAS)
-        image.paste(nimg, (x - width // 2, y - height // 2))
+        image.paste(nimg, (x - width // 2, y - height // 2), nimg)
 
     def smaller(self, event):
         self.resize(self.img.width * 0.9)
@@ -325,7 +325,7 @@ class Fspdf:
         empty = Image.new("RGBA", (orig.width, orig.height), (0, 0, 0, 0))
 
         for p in self.pages:
-            stamp = Image.new("RGBA", (orig.width, orig.height), (0, 0, 0, 0))
+            stamp = Image.new("RGBA", (orig.width, orig.height), (255, 255, 255, 0))
             for s in p.annotations:
                 s.image_draw(stamp)
             stamp_file = "{}-stamp.png".format(p.img_file[:-4])
