@@ -53,8 +53,8 @@ class Page():
         sw = width / self.width
         sh = height / self.height
         scale = sw if sw < sh else sh
-        self.width = int(self.width*scale)
-        self.height = int(self.height*scale)
+        self.width = int(self.width * scale)
+        self.height = int(self.height * scale)
         self.xoffset = (width - self.width) / 2
         self.yoffset = (height - self.height) / 2
         self.img = Image.open(self.img_file)
@@ -119,8 +119,8 @@ class Annotation():
     def resize(self, width):
         if width > self.page.img.width:
             width = self.page.img.width
-        if width < 50:
-            width = 50
+        if width < 10:
+            width = 10
         if self.img.width == width:
             return
         self.width = width
@@ -155,10 +155,10 @@ class Annotation():
         self.page.canvas.update_idletasks()
 
     def coords(self):
-        return (int(self.x-self.img.width//2),
-                int(self.y-self.img.height//2),
-                int(self.x+self.img.width//2),
-                int(self.y+self.img.height//2))
+        return (int(self.x - self.img.width // 2),
+                int(self.y - self.img.height // 2),
+                int(self.x + self.img.width // 2),
+                int(self.y + self.img.height // 2))
 
     def update_select_rect(self):
         if self.select_rect_oid not in self.page.canvas.find_all():
@@ -168,8 +168,7 @@ class Annotation():
                 self.page.canvas.coords(self.select_rect_oid, *self.coords())
                 print("Update selection rectangle at {}".format(self.coords()))
             else:
-                self.select_rect_oid = self.page.canvas.create_rectangle(
-                                            *self.coords())
+                self.select_rect_oid = self.page.canvas.create_rectangle(*self.coords())
                 print("Draw new selection at {}".format(self.coords()))
         else:
             if self.select_rect_oid is not None:
@@ -284,9 +283,12 @@ class Fspdf:
                                      value="sign", indicatoron=0)
         fill_button = tk.Radiobutton(right, text="Fill", variable=self.mode,
                                      value="fill", indicatoron=0)
+        erase_button = tk.Radiobutton(right, text="Erase", variable=self.mode,
+                                      value="erase", indicatoron=0)
         off_button.pack(fill=tk.X)
         sign_button.pack(fill=tk.X)
         fill_button.pack(fill=tk.X)
+        erase_button.pack(fill=tk.X)
 
         self.text = tk.Text(right, height=10, width=30)
         self.text.pack()
@@ -384,6 +386,9 @@ class Fspdf:
             for i, l in enumerate(lines):
                 d.text((0, i * height * 1.5), l, font=fnt, fill=(0, 0, 0, 255))
             Annotation(self.page, txt, event)
+        elif self.mode.get() == "erase":
+            eraser = Image.new('RGBA', (10, 10), (255, 255, 255, 255))
+            Annotation(self.page, eraser, event)
 
     def prev_page(self):
         cur = self.pages.index(self.page)
