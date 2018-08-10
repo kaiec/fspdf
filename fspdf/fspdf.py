@@ -405,18 +405,29 @@ class Fspdf:
 
 def main():
     config = configparser.ConfigParser()
-    for loc in (os.curdir, os.path.expanduser("~"),
+    for loc in (os.curdir, os.path.expanduser("~/.config"),
                 "/etc/fspdf"):
         try:
             with open(os.path.join(loc, "fspdf.conf")) as source:
-                config.read(source)
+                config.read_file(source)
+                print("Configuration read from {}".format(source.name))
+                print(config.sections())
+                break
         except IOError:
             pass
     parser = argparse.ArgumentParser(description="Fill and sign any PDF.")
     parser.add_argument('pdf_file', metavar='PDF_FILE', type=str,
                         help='The PDF file to be filled and signed')
-    parser.add_argument('sig_file', metavar='SIGNATURE_FILE', type=str,
-                        help='A transparent png image wih yo signature')
+    parser.add_argument('-s', '--signature', dest='sig_file',
+                        metavar='SIGNATURE_FILE', type=str,
+                        help='A transparent png image wih your signature',
+                        default='')
     args = parser.parse_args()
-    print("Executing fspds version %s." % __version__)
+    print("Executing fspdf version %s." % __version__)
+    if args.sig_file == "":
+        if 'sig_file' not in config['DEFAULT']:
+            print("No signature given. Either provide it as argument with -s or create a config file. See README.md for details.")
+            exit()
+        else:
+            args.sig_file = os.path.expanduser(config['DEFAULT']['sig_file'])
     Fspdf(args.pdf_file, args.sig_file)

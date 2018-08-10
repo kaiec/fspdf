@@ -67,7 +67,7 @@ python3 setup.py install
 Or you run it directly using
 
 ```
-./fspdf-runner.py PDFFILE.PDF SIGNATURE.PNG
+./fspdf-runner.py -s SIGNATURE.PNG PDFFILE.PDF 
 ```
 
 Make sure you have Pillow installed in this case:
@@ -82,7 +82,7 @@ pip3 install Pillow
 Create a transparent png with your signature.
 
 ```
-fspdf PDFFILE.PDF SIGNATURE.PNG
+fspdf -s SIGNATURE.PNG PDFFILE.PDF 
 ```
 
 - PDF automatically adjusts to window size.
@@ -91,9 +91,19 @@ fspdf PDFFILE.PDF SIGNATURE.PNG
 - Drag and drop to move element
 - hit save button to export to PDFFILE-signed.PDF
 
+## CONFIGURATION
+
+You can create a config file as ~/.config/fspdf.conf to 
+store the path to your signature.
+
+Example:
+```
+[DEFAULT]
+sig_file = ~/signature.png
+```
+
 ## Todo / issues
 - scrollable canvas
-- config file to configure the signature
 - date stamps with configurable date format
 - multiline text with adjustable line height (to fill in tables)
 - ...
