@@ -4,7 +4,7 @@
 """fspdf.fspdf: Fill and sign PDFs."""
 
 
-__version__ = "0.1.2-dev"
+__version__ = "0.1.3.1"
 
 
 import tkinter as tk

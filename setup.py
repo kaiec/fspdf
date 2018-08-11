@@ -31,7 +31,7 @@ setup(
     install_requires=['Pillow'],
     description="Fill and sign any PDF.",
     long_description=long_descr,
-    licsens="MIT",
+    license="MIT",
     keywords="PDF forms fill sign annotate",
     author="Kai Eckert",
     author_email="hallo@kaiec.de",

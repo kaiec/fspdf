@@ -24,6 +24,7 @@ Currently this is a very early prototype, merely a proof-of-concept. fspdf creat
 
 Otherwise just wait until this thing works. The good thing is that I will be motivated to continue whenever a sucking PDF file to be filled and signed hits my inbox. I can assure you, this will happen :-)
 
+PS: Actually, fspdf works for me very well for several months now. Follow the project on GitHub if you are interested in current issues and developments.
 
 ## Installation
 
@@ -91,7 +92,7 @@ fspdf -s SIGNATURE.PNG PDFFILE.PDF
 - Drag and drop to move element
 - hit save button to export to PDFFILE-signed.PDF
 
-## CONFIGURATION
+## Configuration
 
 You can create a config file as ~/.config/fspdf.conf to 
 store the path to your signature.
