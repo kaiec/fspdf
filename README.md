@@ -26,6 +26,8 @@ Otherwise just wait until this thing works. The good thing is that I will be mot
 
 PS: Actually, fspdf works for me very well for several months now. Follow the project on GitHub if you are interested in current issues and developments.
 
+![](fspdf-cast.gif)
+
 ## Installation
 
 ### Latest release:
