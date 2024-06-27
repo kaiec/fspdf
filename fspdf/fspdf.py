@@ -250,7 +250,8 @@ class Fspdf:
 
         # Convert it to png images
         subprocess.run(["convert", "-density", "150", self.tmp_pdf,
-                        "-alpha", "off",
+                        "-background", "white",
+                        "-alpha", "remove",
                        "".join([self.tmp_pdf[:-4], "-%04d.png"])],
                        stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                        check=True)
