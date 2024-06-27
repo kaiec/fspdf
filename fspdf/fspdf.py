@@ -59,7 +59,7 @@ class Page():
         self.yoffset = (height - self.height) / 2
         self.img = Image.open(self.img_file)
         self.img = self.img.resize((self.width, self.height),
-                                   Image.ANTIALIAS)
+                                   Image.LANCZOS)
         print("New image dimensions: {}x{}".format(self.img.width,
               self.img.height))
         self.tkimg = ImageTk.PhotoImage(image=self.img)
@@ -183,7 +183,7 @@ class Annotation():
         nimg = self.img_orig
         scale = width / nimg.width
         height = int(nimg.height * scale)
-        nimg = nimg.resize((width, height), Image.ANTIALIAS)
+        nimg = nimg.resize((width, height), Image.LANCZOS)
         image.paste(nimg, (x - width // 2, y - height // 2), nimg)
 
     def smaller(self, event):
@@ -373,18 +373,20 @@ class Fspdf:
             width = 0
             height = 0
             for l in lines:
-                size = d.textsize(l, font=fnt)
+                left, top, right, bottom = d.textbbox((0,0), l, font=fnt)
+                print(left, top, right, bottom)
+                size = (right, bottom)
                 width = max(size[0], width)
                 height = max(size[1], height)
             if width == 0 or height == 0:
                 print("Fill image is empty, returning")
                 return
-            size = (width, int(height * 1.5 * len(lines)))
+            size = (int(width), int(height * len(lines)))
             txt = Image.new('RGBA', size, (0, 0, 0, 0))
             d = ImageDraw.Draw(txt)
             print("Size of text: {}".format((width, size)))
             for i, l in enumerate(lines):
-                d.text((0, i * height * 1.5), l, font=fnt, fill=(0, 0, 0, 255))
+                d.text((0, i * height), l, font=fnt, fill=(0, 0, 0, 255))
             Annotation(self.page, txt, event)
         elif self.mode.get() == "erase":
             eraser = Image.new('RGBA', (10, 10), (255, 255, 255, 255))
